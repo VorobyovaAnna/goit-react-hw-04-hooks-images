@@ -7,7 +7,7 @@ import ImageGallery from './ImageGallery';
 import api from '../services/api-service';
 import Button from './Button';
 import Modal from './Modal';
-import Loader from './Loader';
+// import Loader from './Loader';
 
 
 
@@ -60,7 +60,7 @@ export default class App extends Component {
       <div className="App">
         <Searchbar onSubmit={this.handleFormSubmit} />
         <ImageGallery images={images} onOpenModal={this.onOpenModal}/>
-        {isLoading && <Loader />}
+        {/* {isLoading && <Loader />} */}
         {images.length > 0 && !isLoading && <Button onClick={this.onLoadMore} />}
         {isModalOpen && <Modal largeImageURL={largeImage} alt={alt} onCloseModal={this.onCloseModal} />}
         <ToastContainer autoClose={3000} />
