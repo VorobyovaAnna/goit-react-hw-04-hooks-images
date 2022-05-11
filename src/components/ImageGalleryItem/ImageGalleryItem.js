@@ -1,17 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
-import s from "./ImageGalleryItem.module.css";
+import {ImageItem, Image } from "./ImageGalleryItem.styled";
 
 const ImageGalleryItem = ({ src, alt, id, onOpenModal }) => {
   return (
     <>
-      <li className={s.ImageGalleryItem} onClick={() => onOpenModal(id)}>
-        <img
-          className={s.ImageGalleryItemImage}
+      <ImageItem onClick={() => onOpenModal(id)}>
+        <Image
           src={src}
           alt={alt}  
         />
-      </li>
+      </ImageItem>
     </>
   );
 };

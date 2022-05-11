@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { GlobalStyle } from './GlobalStyle';
+import { AppContainer } from './App.styled';
 import 'react-toastify/dist/ReactToastify.css';
-import './App.css';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import api from '../services/api-service';
@@ -57,16 +58,15 @@ export default class App extends Component {
     const { images, largeImage, alt, isModalOpen, isLoading } = this.state;
 
     return (
-      <div className="App">
+      <AppContainer>
+        <GlobalStyle />
         <Searchbar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={images} onOpenModal={this.onOpenModal}/>
+        {images.length > 0 && <ImageGallery images={images} onOpenModal={this.onOpenModal}/>}
         {isLoading && <Loader />}
         {images.length > 0 && !isLoading && <Button onClick={this.onLoadMore} />}
         {isModalOpen && <Modal largeImageURL={largeImage} alt={alt} onCloseModal={this.onCloseModal} />}
         <ToastContainer autoClose={3000} />
-
-
-      </div>
+      </AppContainer>
      
    );
  }

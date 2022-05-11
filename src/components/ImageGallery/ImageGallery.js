@@ -1,15 +1,15 @@
 import React from "react";
+import { GalleryList } from "./ImageGallery.styled";
 import PropTypes from "prop-types";
 import ImageGalleryItem from '../ImageGalleryItem';
-import s from "./ImageGallery.module.css";
 
 const ImageGallery = ({ images, onOpenModal }) => (
-  <ul className={s.ImageGallery}>
+  <GalleryList>
         {images.map(image => {
             const { id, webformatURL, tags } = image;
             return <ImageGalleryItem key={id} src={webformatURL} alt={tags} id={id} onOpenModal={onOpenModal} />
         })}
-  </ul>
+  </GalleryList>
 );
 
 ImageGallery.propTypes = {

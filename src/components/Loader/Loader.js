@@ -1,12 +1,12 @@
 import React from 'react';
 import { MutatingDots } from 'react-loader-spinner';
-import s from "./Loader.module.css";
+import { LoaderContainer } from "./Loader.styled";
 
 const Loader = () => {
   return (
-    <div className={s.Loader}>
+    <LoaderContainer>
       <MutatingDots color="#00BFFF" width={80} height={80} />
-    </div>
+    </LoaderContainer>
   );
 };
 

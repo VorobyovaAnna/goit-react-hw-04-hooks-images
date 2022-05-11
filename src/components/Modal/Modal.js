@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import { PropTypes } from 'prop-types';
-import s from './Modal.module.css';
+import { Overlay, ModalView } from "./Modal.styled";
 
 const modalRoot = document.querySelector('#modal-root');
 
@@ -35,11 +35,11 @@ export default class Modal extends Component {
   render = () => {
     const { largeImageURL, alt } = this.props;
     return createPortal(
-        <div className={s.Overlay} onClick={this.onBackdropClick}>
-            <div className={s.Modal}>
+        <Overlay onClick={this.onBackdropClick}>
+            <ModalView>
                 <img src={largeImageURL} alt={alt} />
-            </div>
-        </div>,
+            </ModalView>
+        </Overlay>,
         modalRoot,
     );
   };
