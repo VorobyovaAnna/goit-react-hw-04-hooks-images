@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import { GlobalStyle } from './GlobalStyle';
@@ -6,7 +6,7 @@ import { AppContainer } from './App.styled';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
-import api from '../services/api-service';
+import api, { countTotalResults }  from '../services/api-service';
 import Button from './Button';
 import Modal from './Modal';
 import Loader from './Loader';
@@ -22,6 +22,8 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const isLastPage = useRef(true);
+
   useEffect(() => {
     if (!searchName || !page) return;
 
@@ -31,9 +33,11 @@ export default function App() {
         const data = await api.getImages(searchName, page);
         if (!data.hits.length) {
           toast.error('Sorry, there are no images matching your search query. Please try again.');
+          isLastPage.current = true;
           setIsLoading(false);
           return
         }
+        isLastPage.current = countTotalResults(page) >= data.totalHits;
         setImages(p => [...p, ...data.hits]);
         setIsLoading(false);
       } catch (error) {
@@ -75,8 +79,7 @@ export default function App() {
       <GlobalStyle />
       <Searchbar onSubmit={handleFormSubmit} images={images} />
       {images.length > 0 && <ImageGallery images={images} onOpenModal={onOpenModal}/>}
-      {isLoading && <Loader />}
-      {images.length > 0 && !isLoading && <Button onClick={onLoadMore} />}
+      {isLoading ? (<Loader />) : (!isLastPage.current && <Button onClick={onLoadMore} />)}
       {isModalOpen && <Modal largeImageURL={largeImage} alt={alt} onCloseModal={onCloseModal} />}
       <ToastContainer autoClose={3000} />
     </AppContainer>
