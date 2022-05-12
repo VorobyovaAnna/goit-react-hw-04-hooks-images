@@ -4,24 +4,18 @@ const API_KEY = '24773711-fe92a58449d73928c22f0da31';
 const BASE_URL = 'https://pixabay.com/api/';
 const PER_PAGE = 12;
 
-const getImages = (searchName, page) => {
-  return axios
+const getImages = async (searchName, page) => {
+  const response = await axios
     .get(
       `${BASE_URL}?key=${API_KEY}&q=${searchName}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${PER_PAGE}`,
-    )
-    .then(response =>
-      response.data.hits.map(({ id, webformatURL, largeImageURL, tags }) => ({
-        id,
-        webformatURL,
-        largeImageURL,
-        tags,
-      })),
-        
-    );
+  );
+  return response.data;
 };
+
 
 const api = {
   getImages,
 };
+//   console.log(api)
 
 export default api;

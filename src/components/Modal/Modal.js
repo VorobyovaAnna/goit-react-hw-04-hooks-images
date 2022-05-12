@@ -1,46 +1,45 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { PropTypes } from 'prop-types';
 import { Overlay, ModalView } from "./Modal.styled";
 
 const modalRoot = document.querySelector('#modal-root');
 
-export default class Modal extends Component {
-  static propTypes = {
-    onCloseModal: PropTypes.func.isRequired,
-    largeImageURL: PropTypes.string.isRequired,
-    alt: PropTypes.string.isRequired,
-  };
+const Modal = ({ onCloseModal, largeImageURL, alt }) => {
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.onEscClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.onEscClick);
-  }
-
-  onEscClick = e => {
+  useEffect(() => {
+    const onEscClick = e => {
     if (!e.key === 'Escape') return;
 
-    this.props.onCloseModal();
-  };
+    onCloseModal();
+    };
+    
+    document.addEventListener('keydown', onEscClick);
+    return () => {
+      document.removeEventListener('keydown', onEscClick);
+    };
+  }, [onCloseModal]);
 
-  onBackdropClick = e => {
+  const onBackdropClick = e => {
     if (e.target !== e.currentTarget) return;
 
-    this.props.onCloseModal();
+    onCloseModal();
   };
 
-  render = () => {
-    const { largeImageURL, alt } = this.props;
-    return createPortal(
-        <Overlay onClick={this.onBackdropClick}>
-            <ModalView>
-                <img src={largeImageURL} alt={alt} />
-            </ModalView>
-        </Overlay>,
-        modalRoot,
-    );
-  };
+  return createPortal(
+      <Overlay onClick={onBackdropClick}>
+          <ModalView>
+              <img src={largeImageURL} alt={alt} />
+          </ModalView>
+      </Overlay>,
+      modalRoot,
+  );
 }
+
+export default Modal;
+
+Modal.propTypes = {
+  onCloseModal: PropTypes.func.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+};

@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import { GlobalStyle } from './GlobalStyle';
 import { AppContainer } from './App.styled';
@@ -11,63 +12,73 @@ import Modal from './Modal';
 import Loader from './Loader';
 
 
+export default function App() {
 
-export default class App extends Component {
-  state = {
-    images: [],
-    largeImage: '',
-    alt: '',
-    searchName: '',
-    page: 1,
-    isModalOpen: false,
-    isLoading: false,
-  }
+  const [images, setImages] = useState([]);
+  const [largeImage, setLargeImage] = useState('');
+  const [alt, setAlt] = useState('');
+  const [searchName, setSearchName] = useState('');
+  const [page, setPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchName !== this.state.searchName || prevState.page !== this.state.page) {
-      // console.log('prevState.searchName:', prevState.searchName);
-      // console.log('this.state.searchName:', this.state.searchName);
-      // console.log('Изменился запрос');
-      
-      api
-        .getImages(this.state.searchName, this.state.page)
-        .then(images => this.setState(prevState => ({ images: [...prevState.images, ...images] })))
-        .catch(console.log)
-        .finally(() => this.setState({ isLoading: false }));
-    }
-  }
+  useEffect(() => {
+    if (!searchName || !page) return;
 
-  handleFormSubmit = searchName => {
-    if (searchName === this.state.searchName) return;
-    this.setState({ searchName: searchName, page: 1, images: [], isModalOpen: false, isLoading: true });
-  }
-  onLoadMore = () => {
-    this.setState(() => ({ page: this.state.page + 1, isLoading: true }));
+    (async function fetchImg() {
+      setIsLoading(true);
+      try {
+        const data = await api.getImages(searchName, page);
+        if (!data.hits.length) {
+          toast.error('Sorry, there are no images matching your search query. Please try again.');
+          setIsLoading(false);
+          return
+        }
+        setImages(p => [...p, ...data.hits]);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        toast.error('Sorry, there are no images matching your search query. Please try again.');
+      }
+    })();
+  }, [searchName, page]);
+  
+
+
+  const handleFormSubmit = newSearchName => {
+    if (newSearchName === searchName) return;
+    
+    setSearchName(newSearchName);
+    setPage(1);
+    setImages([]);
+    setIsModalOpen(false);
+    setIsLoading(true);
   };
 
-  onOpenModal = id => this.setState(prevState => ({
-    isModalOpen: true,
-    largeImage: prevState.images.find(image => image.id === id).largeImageURL,
-    alt: prevState.images.find(image => image.id === id).tags,
-  }));
 
-  onCloseModal = () => this.setState({ isModalOpen: false });
+  const onLoadMore = () => {
+    setPage(prev => prev + 1);
+    setIsLoading(true);
+  };
+  
 
+  const onOpenModal = id => {
+    setIsModalOpen(true);
+    setLargeImage(images.find(image => image.id === id).largeImageURL);
+    setAlt(images.find(image => image.id === id).tags);
+  };
 
-  render() {
-    const { images, largeImage, alt, isModalOpen, isLoading } = this.state;
+  const onCloseModal = () => setIsModalOpen(false);
 
-    return (
-      <AppContainer>
-        <GlobalStyle />
-        <Searchbar onSubmit={this.handleFormSubmit} />
-        {images.length > 0 && <ImageGallery images={images} onOpenModal={this.onOpenModal}/>}
-        {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && <Button onClick={this.onLoadMore} />}
-        {isModalOpen && <Modal largeImageURL={largeImage} alt={alt} onCloseModal={this.onCloseModal} />}
-        <ToastContainer autoClose={3000} />
-      </AppContainer>
-     
-   );
- }
+  return (
+    <AppContainer>
+      <GlobalStyle />
+      <Searchbar onSubmit={handleFormSubmit} images={images} />
+      {images.length > 0 && <ImageGallery images={images} onOpenModal={onOpenModal}/>}
+      {isLoading && <Loader />}
+      {images.length > 0 && !isLoading && <Button onClick={onLoadMore} />}
+      {isModalOpen && <Modal largeImageURL={largeImage} alt={alt} onCloseModal={onCloseModal} />}
+      <ToastContainer autoClose={3000} />
+    </AppContainer>
+  );
 }
